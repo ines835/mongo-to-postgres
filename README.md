@@ -1,20 +1,24 @@
-## 📦 Prérequis
+##  Prérequis
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - [Python 3.10+](https://www.python.org/downloads/)
 
-## ⚙️ Installation
+## Installation
 
 Cloner le dépôt 
 
 ```bash
-git clone 
+git clone https://github.com/ines835/mongo-to-postgres.git
 cd mongo-to-postgres
 ```
+
+
+## Configurer les variables d'env
 
 copy .env.example .env
 
 
+## Lancer le script auto
 
 run.bat
 
