@@ -1,7 +1,21 @@
 @echo off
 title MongoDB → PostgreSQL - Import Automatisé
 
-echo [1/3] Lancement de PostgreSQL via Docker...
+REM === Création de l'env virtuel ===
+if not exist env (
+    echo 🐍 Création de l'environnement virtuel Python...
+    python -m venv env
+    IF %ERRORLEVEL% NEQ 0 (
+        echo ❌ Erreur : impossible de créer l'environnement virtuel.
+        pause
+        exit /b
+    )
+)
+
+REM === Activation ===
+call env\Scripts\activate.bat
+
+echo [1/4] Lancement de PostgreSQL via Docker...
 docker compose up -d
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Erreur Docker : impossible de démarrer PostgreSQL.
@@ -9,7 +23,7 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b
 )
 
-echo [2/3] Installation des dépendances Python...
+echo [2/4] Installation des dépendances Python...
 pip install -r requirements.txt
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Erreur pip : impossible d’installer les paquets.
@@ -17,7 +31,7 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b
 )
 
-echo [3/3] Lancement du transfert des données MongoDB → PostgreSQL...
+echo [3/4] Lancement du transfert des données MongoDB → PostgreSQL...
 python main.py
 IF %ERRORLEVEL% NEQ 0 (
     echo ❌ Erreur pendant l'import des données.
@@ -25,5 +39,5 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b
 )
 
-echo ✅ Import terminé ! tu peux aller sur power bi maintenant akhi fillah <3 
+echo [4/4] ✅ Import terminé ! Tu peux aller sur Power BI maintenant akhi fillah ❤️
 pause
