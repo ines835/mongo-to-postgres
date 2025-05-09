@@ -3,7 +3,7 @@ title MongoDB → PostgreSQL - Import Automatisé
 
 REM === Création de l'env virtuel ===
 if not exist env (
-    echo 🐍 Création de l'environnement virtuel Python...
+    echo Création de l'environnement virtuel Python...
     python -m venv env
     IF %ERRORLEVEL% NEQ 0 (
         echo ❌ Erreur : impossible de créer l'environnement virtuel.
@@ -39,5 +39,5 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b
 )
 
-echo [4/4] ✅ Import terminé ! Tu peux aller sur Power BI maintenant akhi fillah ❤️
+echo [4/4] ✅ Import terminé ! Tu peux aller sur Power BI maintenant 
 pause
