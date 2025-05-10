@@ -1,5 +1,5 @@
 import os
-import psycopg2
+import psycopg2 # type: ignore
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
@@ -27,6 +27,21 @@ columns = list(first_doc.keys())
 columns_str = ", ".join([f"{col} TEXT" for col in columns])
 placeholders = ", ".join(["%s"] * len(columns))
 
+# print pour vérifier les colonnes 
+print("\nAperçu de la table qui va être créée :")
+print(f"Nom de la table : {os.getenv('PG_TABLE')}")
+print("Colonnes détectées :\n")
+
+for col in columns:
+    print(f"  - {col} (type TEXT)")
+
+response = input("\n On continue ? (o/N) : ").strip().lower()
+
+if response not in ["o", "oui", "y", "yes"]:
+    print("Importation annulée")
+    exit()
+
+
 # Connexion Postgresql 
 pg_conn = psycopg2.connect(
     host=os.getenv("PG_HOST"),
@@ -37,7 +52,7 @@ pg_conn = psycopg2.connect(
 )
 pg_cursor = pg_conn.cursor()
 
-# Création propre de la table cible
+# Création de la table cible, typage TEXT de toutes les colonnes par simplicité
 pg_table = os.getenv("PG_TABLE")
 pg_cursor.execute(f"DROP TABLE IF EXISTS {pg_table};")
 pg_cursor.execute(f"CREATE TABLE {pg_table} ({columns_str});")
@@ -59,7 +74,7 @@ for i, doc in enumerate(cursor, start=1):
         print(f"{total_inserted} documents insérés...")
         batch = []
 
-#  Insère les derniers documents s’il en reste après la boucle principale
+#  On insère les derniers documents s’il en reste après la boucle principale
 if batch:
     pg_cursor.executemany(
         f"INSERT INTO {pg_table} ({', '.join(columns)}) VALUES ({placeholders});",
