@@ -3,10 +3,10 @@ import psycopg2
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
-# Charger les variables d'environnement depuis .env
+# On charge les variables d'environnement depuis .env
 load_dotenv()
 
-# --- Connexion MongoDB ---
+# Connexion MongoDB 
 mongo_uri = os.getenv("MONGO_URI")
 mongo_db = os.getenv("MONGO_DB")
 mongo_collection = os.getenv("MONGO_COLLECTION")
@@ -15,17 +15,19 @@ client = MongoClient(mongo_uri)
 collection = client[mongo_db][mongo_collection]
 cursor = collection.find(batch_size=500)
 
-# Préparer les colonnes à partir du premier document
+# On récupère le premier document pour analyser sa structure
 first_doc = next(cursor, None)
+
+# Si la connexion est vide exit
 if not first_doc:
-    print("⚠️ Aucun document trouvé dans la collection MongoDB.")
+    print("Aucun document trouvé dans la collection MongoDB.")
     exit()
 
 columns = list(first_doc.keys())
 columns_str = ", ".join([f"{col} TEXT" for col in columns])
 placeholders = ", ".join(["%s"] * len(columns))
 
-# --- Connexion PostgreSQL ---
+# Connexion Postgresql 
 pg_conn = psycopg2.connect(
     host=os.getenv("PG_HOST"),
     port=os.getenv("PG_PORT"),
@@ -35,12 +37,12 @@ pg_conn = psycopg2.connect(
 )
 pg_cursor = pg_conn.cursor()
 
-# Créer / recréer la table
+# Création propre de la table cible
 pg_table = os.getenv("PG_TABLE")
 pg_cursor.execute(f"DROP TABLE IF EXISTS {pg_table};")
 pg_cursor.execute(f"CREATE TABLE {pg_table} ({columns_str});")
 
-# Réinjection du premier document + batch insert
+# On commence avec le premier document déja lu et on prépare la première insertion
 total_inserted = 0
 batch = [[str(first_doc.get(col, "")) for col in columns]]
 
@@ -54,10 +56,10 @@ for i, doc in enumerate(cursor, start=1):
             batch
         )
         total_inserted += len(batch)
-        print(f"✅ {total_inserted} documents insérés...")
+        print(f"{total_inserted} documents insérés...")
         batch = []
 
-# Insérer les éventuels documents restants
+#  Insère les derniers documents s’il en reste après la boucle principale
 if batch:
     pg_cursor.executemany(
         f"INSERT INTO {pg_table} ({', '.join(columns)}) VALUES ({placeholders});",
@@ -65,8 +67,9 @@ if batch:
     )
     total_inserted += len(batch)
 
+# Commit et fermeture des connexions
 pg_conn.commit()
 pg_cursor.close()
 pg_conn.close()
 
-print(f"🎉 Import terminé : {total_inserted} documents insérés dans PostgreSQL → table `{pg_table}`.")
+print(f"Import terminé : {total_inserted} documents insérés dans PostgreSQL => table `{pg_table}`.")
