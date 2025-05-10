@@ -22,7 +22,7 @@ copy .env.example .env  # (sous Windows)
 
 Sous windows
 ```bash
-run.bat
+start run.bat
 ```
 Ce script :
 se connecte à MongoDB Atlas
